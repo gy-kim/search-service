@@ -11,18 +11,22 @@ import (
 )
 
 func TestData_Integration_getClient(t *testing.T) {
-	result, err := getClient(&testConfig{})
+	result, err := getClient(&testConfig{
+		url: "http://127.0.0.1:9200",
+	})
 	require.NoError(t, err)
 	assert.NotNil(t, result)
 	t.Log(result)
 }
 
-type testConfig struct{}
+type testConfig struct {
+	url string
+}
 
 func (t *testConfig) Logger() logging.Logger {
 	return &logging.LoggerStdOut{}
 }
 
 func (t *testConfig) DataURL() string {
-	return "http://elasticsearch:9200"
+	return t.url
 }

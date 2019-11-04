@@ -16,7 +16,7 @@ type Config interface {
 }
 
 var getClient = func(cfg Config) (*elastic.Client, error) {
-	if client != nil {
+	if client == nil {
 		var err error
 		client, err = elastic.NewClient(
 			elastic.SetURL(cfg.DataURL()),
