@@ -14,17 +14,17 @@ type Logger interface {
 type LoggerStdOut struct{}
 
 func (l LoggerStdOut) Debug(message string, args ...interface{}) {
-	fmt.Printf("[DEBUG] "+message, args...)
+	fmt.Printf("[DEBUG] "+message+"\n", args...)
 }
 
 func (l LoggerStdOut) Info(message string, args ...interface{}) {
-	fmt.Printf("[INFO] "+message, args...)
+	fmt.Printf("[INFO] "+message+"\n", args...)
 }
 
 func (l LoggerStdOut) Warn(message string, args ...interface{}) {
-	fmt.Printf("[WARN] "+message, args...)
+	fmt.Printf("[WARN] "+message+"\n", args...)
 }
 
 func (l LoggerStdOut) Error(message string, args ...interface{}) {
-	fmt.Printf("[ERROR] "+message, args...)
+	fmt.Printf("[ERROR] "+message+"\n", args...)
 }
