@@ -5,6 +5,7 @@ package data
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -20,13 +21,14 @@ func TestDAO_Integration_InsertProduct(t *testing.T) {
 
 	id, err := uuid.NewRandom()
 	require.NoError(t, err)
+
 	t.Logf("uuid:%s", id.String())
 
 	product := &Product{
-		ID:        id.String(),
-		Type:      "black_shoes",
-		BrandName: "adidas",
-		Name:      fmt.Sprintf("adidas_%s", id.String()),
+		ID:    id.String(),
+		Type:  "black_shoes",
+		Brand: "adidas",
+		Name:  fmt.Sprintf("adidas_%s", strings.Split(id.String(), "-")[0]),
 	}
 
 	dao := NewDAO(cfg)
