@@ -1,3 +1,3 @@
 .PHONY: test
 test:
-	go test ./... -v -acount=1
+	go test ./... -v -count=1
