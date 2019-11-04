@@ -47,15 +47,10 @@ func (s *Server) route() http.Handler {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/health", health).Methods("GET")
+	router.NotFoundHandler = s.handlerNotFound
 
 	sub := router.PathPrefix("v1").Subrouter()
-	sub.Handle("/", s.handlerList)
-
-	// router.Handle("/api/upload", s.handlerUpload).Methods("POST")
-	// router.Handle("/api/pending/{country}", s.handlerPending).Methods("GET")
-	// router.Handle("/api/approve/{country}", s.handlerApprove).Methods("POST")
-
-	router.NotFoundHandler = s.handlerNotFound
+	sub.Handle("/", s.handlerList).Methods("GET")
 
 	router.Use(s.middleware)
 
@@ -64,8 +59,6 @@ func (s *Server) route() http.Handler {
 
 func (s *Server) middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// s.preHandler(w, r)
-
 		next.ServeHTTP(w, r)
 	})
 }
