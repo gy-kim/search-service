@@ -23,9 +23,9 @@ const (
 )
 
 const (
+	varQueryKey  = "q"
 	varPageKey   = "page"
 	varFilterKey = "filter"
-	varQueryKey  = "q"
 	varSortKey   = "sort"
 	varSortAsc   = "sort_asc"
 )
@@ -51,6 +51,7 @@ type ListHandler struct {
 }
 
 func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
+	h.logger().Debug("ServeHTTP")
 	query, err := h.extractQuery(request)
 	if err != nil {
 		h.logger().Error("Failed to extract query. err:%s", err)
@@ -126,8 +127,8 @@ func (h *ListHandler) extractFilter(request *http.Request) *data.Filter {
 	return filter
 }
 
-func (h *ListHandler) extractQuery(request *http.Request) (string, error) {
-	vars := mux.Vars(request)
+func (h *ListHandler) extractQuery(r *http.Request) (string, error) {
+	vars := mux.Vars(r)
 	query, exists := vars[varQueryKey]
 	if !exists {
 		return "", errQueryMissing

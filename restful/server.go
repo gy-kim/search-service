@@ -17,6 +17,15 @@ type Server struct {
 	handlerNotFound http.HandlerFunc
 }
 
+// New create and initialize the Server
+func New(cfg Config, lister ListService) *Server {
+	return &Server{
+		address:     cfg.BindServicePort(),
+		cfg:         cfg,
+		handlerList: NewListHandler(cfg, lister),
+	}
+}
+
 // Listen starts HTTP service.
 func (s *Server) Listen(stop <-chan struct{}) {
 	s.logger().Info("Start server..")
@@ -44,13 +53,16 @@ func (s *Server) Listen(stop <-chan struct{}) {
 
 // route registes url router
 func (s *Server) route() http.Handler {
+	s.logger().Info("Start server..")
 	router := mux.NewRouter()
 
 	router.HandleFunc("/health", health).Methods("GET")
 	router.NotFoundHandler = s.handlerNotFound
 
-	sub := router.PathPrefix("v1").Subrouter()
-	sub.Handle("/products", s.handlerList).Methods("GET")
+	// sub := router.PathPrefix("v1").Subrouter()
+	// sub.Handle("/products", s.handlerList).Methods("GET")
+
+	router.Handle("/v1/products", s.handlerList).Methods("GET").Queries(varQueryKey, varPageKey, varFilterKey, varSortKey, varSortAsc)
 
 	router.Use(s.middleware)
 

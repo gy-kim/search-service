@@ -1,3 +1,28 @@
 package main
 
-func main() {}
+import (
+	"context"
+
+	"github.com/gy-kim/search-service/config"
+	"github.com/gy-kim/search-service/internal/data"
+	"github.com/gy-kim/search-service/internal/list"
+	"github.com/gy-kim/search-service/restful"
+)
+
+func main() {
+	ctx := context.Background()
+
+	server := initializeServer()
+	server.Listen(ctx.Done())
+}
+
+func initializeServer() *restful.Server {
+	lister := list.NewLister(config.App)
+
+	server := restful.New(config.App, lister)
+	return server
+}
+
+func init() {
+	_ = data.NewDAO(config.App)
+}
