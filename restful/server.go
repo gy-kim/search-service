@@ -56,7 +56,6 @@ func (s *Server) Listen(stop <-chan struct{}) {
 
 // route registes url router
 func (s *Server) route() http.Handler {
-	s.logger().Info("Start server..")
 	router := mux.NewRouter()
 
 	router.HandleFunc("/health", health).Methods("GET")
@@ -74,6 +73,8 @@ func (s *Server) route() http.Handler {
 
 func (s *Server) middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
 		if ok := s.auth.Verify(w, r); !ok {
 			return
 		}

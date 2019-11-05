@@ -3,7 +3,6 @@ package restful
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -11,10 +10,6 @@ import (
 
 	"github.com/gy-kim/search-service/internal/data"
 	"github.com/gy-kim/search-service/logging"
-)
-
-var (
-	errQueryMissing = errors.New("query is missing from requeset")
 )
 
 const (
@@ -53,12 +48,8 @@ type ListHandler struct {
 // http://127.0.0.1:9000/v1/products?q=black_shoes&filter=brand:adidas&page=2&sort=name&sort_asc=false
 func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	ctx := request.Context()
-	query, err := h.extractQuery(request)
-	if err != nil {
-		h.logger().Error("Failed to extract query. err:%s", err)
-		response.WriteHeader(http.StatusBadRequest)
-		return
-	}
+
+	query := h.extractQuery(request)
 	filter := h.extractFilter(request)
 	page := h.extractPage(request)
 	sort := h.extractSort(request)
@@ -128,13 +119,13 @@ func (h *ListHandler) extractFilter(r *http.Request) *data.Filter {
 	return filter
 }
 
-func (h *ListHandler) extractQuery(r *http.Request) (string, error) {
+func (h *ListHandler) extractQuery(r *http.Request) string {
 	query, exists := r.URL.Query()[varQueryKey]
 	if !exists || len(query) < 1 {
-		return "", errQueryMissing
+		return ""
 	}
 	h.logger().Debug("[extractQuery] query:(%s)", query[0])
-	return query[0], nil
+	return query[0]
 }
 
 func (h *ListHandler) writeJSON(writer io.Writer, products []*data.Product, page int) error {
