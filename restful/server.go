@@ -50,7 +50,7 @@ func (s *Server) route() http.Handler {
 	router.NotFoundHandler = s.handlerNotFound
 
 	sub := router.PathPrefix("v1").Subrouter()
-	sub.Handle("/", s.handlerList).Methods("GET")
+	sub.Handle("/products", s.handlerList).Methods("GET")
 
 	router.Use(s.middleware)
 

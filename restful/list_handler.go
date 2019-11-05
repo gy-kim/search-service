@@ -2,6 +2,7 @@ package restful
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/gy-kim/search-service/internal/data"
+	"github.com/gy-kim/search-service/logging"
 )
 
 var (
@@ -37,6 +39,7 @@ type ListService interface {
 // NewListHandler is the HTTP Handler
 func NewListHandler(cfg Config, service ListService) *ListHandler {
 	return &ListHandler{
+		cfg:     cfg,
 		service: service,
 	}
 }
@@ -50,6 +53,7 @@ type ListHandler struct {
 func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	query, err := h.extractQuery(request)
 	if err != nil {
+		h.logger().Error("Failed to extract query. err:%s", err)
 		response.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -59,13 +63,16 @@ func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Requ
 
 	products, err := h.service.Do(request.Context(), query, filter, sort, page)
 	if err != nil {
+		h.logger().Error("Failed to Do. err:%s", err)
 		response.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	err = h.toJSON(response, products, page)
 	if err != nil {
+		h.logger().Error("Failed toJSON. err:%s", err)
 		response.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
 
@@ -129,8 +136,23 @@ func (h *ListHandler) extractQuery(request *http.Request) (string, error) {
 }
 
 func (h *ListHandler) toJSON(writer io.Writer, products []*data.Product, page int) error {
-	return errors.New("not implement")
+	out := &listResponseViewModel{
+		Page:     page,
+		Products: make([]*listResponseProduct, len(products)),
+	}
+	for idx, p := range products {
+		out.Products[idx] = &listResponseProduct{
+			ID:    p.ID,
+			Type:  p.Type,
+			Brand: p.Brand,
+			Name:  p.Name,
+		}
+	}
+
+	return json.NewEncoder(writer).Encode(out)
 }
+
+func (h *ListHandler) logger() logging.Logger { return h.cfg.Logger() }
 
 type listResponseViewModel struct {
 	Products []*listResponseProduct `json:"products"`
