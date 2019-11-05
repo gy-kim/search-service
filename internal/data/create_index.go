@@ -36,7 +36,6 @@ const (
 	`
 )
 
-// ref) https://github.com/olivere/elastic/wiki/QueryDSL
 func createAndPopulateIndex(client *elastic.Client) error {
 	ctx := context.Background()
 	exists, err := client.IndexExists(indexName).Do(ctx)
@@ -44,7 +43,6 @@ func createAndPopulateIndex(client *elastic.Client) error {
 		return err
 	}
 	if exists {
-		fmt.Println("exists")
 		_, err = client.DeleteIndex(indexName).Do(ctx)
 		if err != nil {
 			return err
@@ -52,7 +50,6 @@ func createAndPopulateIndex(client *elastic.Client) error {
 	}
 
 	if _, err = client.CreateIndex(indexName).Body(mapping).Do(ctx); err != nil {
-		fmt.Printf("failed to CreateIndex. err: (%v)\n", err)
 		return err
 	}
 

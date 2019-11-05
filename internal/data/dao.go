@@ -28,32 +28,6 @@ type DAO struct {
 	cfg Config
 }
 
-// InsertProduct inserts the product to elastic.
-func (d *DAO) InsertProduct(ctx context.Context, product *Product) error {
-	client, err := getClient(d.cfg)
-	if err != nil {
-		d.logger().Error("failed to get elastic client. err: %s", err)
-		return err
-	}
-
-	result, err := client.Index().
-		Index(indexName).
-		Type(typeName).
-		Id(product.ID).
-		BodyJson(product).
-		Do(ctx)
-
-	if err != nil {
-		d.logger().Error("failed to insert elastic. err:%s", err)
-		return err
-	}
-
-	d.logger().Info("indexed product %s to index %s type %s\n", result.Id, result.Index, result.Type)
-
-	return nil
-
-}
-
 // GetProducts gets products
 func (d *DAO) GetProducts(ctx context.Context, queryKeyword string, filter *Filter, sort *SortCond, page int) ([]*Product, error) {
 	client, err := getClient(d.cfg)
@@ -63,33 +37,9 @@ func (d *DAO) GetProducts(ctx context.Context, queryKeyword string, filter *Filt
 	}
 
 	search := client.Search().Index(indexName).Type(typeName)
-
-	q := elastic.NewBoolQuery()
-
-	var queries []elastic.Query
-	if queryKeyword != "" {
-		query := elastic.NewTermQuery(termQueryKey, queryKeyword)
-		queries = append(queries, query)
-	}
-
-	if filter != nil {
-		for key, val := range *filter {
-			query := elastic.NewMultiMatchQuery(val, key)
-			queries = append(queries, query)
-		}
-	}
-	q = q.Must(queries...)
-	search = search.Query(q)
-
-	if sort != nil {
-		search = search.Sort(sort.Target, sort.Ascending)
-	}
-
-	if page != 0 {
-		search = search.From(page * searchSize)
-	}
-
-	search = search.Size(searchSize)
+	search = d.queryCondition(search, queryKeyword, filter)
+	search = d.paginateCondition(search, page)
+	search = d.sortCondition(search, sort)
 
 	result, err := search.Do(ctx)
 	if err != nil {
@@ -108,6 +58,41 @@ func (d *DAO) GetProducts(ctx context.Context, queryKeyword string, filter *Filt
 	return products, nil
 }
 
+func (d *DAO) queryCondition(service *elastic.SearchService, queryKeyword string, filter *Filter) *elastic.SearchService {
+	boolQuery := elastic.NewBoolQuery()
+
+	var queries []elastic.Query
+	if queryKeyword != "" {
+		query := elastic.NewTermQuery(termQueryKey, queryKeyword)
+		queries = append(queries, query)
+	}
+
+	if filter != nil {
+		for key, val := range *filter {
+			query := elastic.NewMultiMatchQuery(val, key)
+			queries = append(queries, query)
+		}
+	}
+	boolQuery = boolQuery.Must(queries...)
+	service = service.Query(boolQuery)
+	return service
+}
+
+func (d *DAO) paginateCondition(service *elastic.SearchService, page int) *elastic.SearchService {
+	if page > 1 {
+		service = service.From((page - 1) * searchSize)
+	}
+	service = service.Size(searchSize)
+	return service
+}
+
+func (d *DAO) sortCondition(service *elastic.SearchService, sort *SortCond) *elastic.SearchService {
+	if sort != nil {
+		service = service.Sort(sort.Target, sort.Ascending)
+	}
+	return service
+}
+
 func populateProduct(res *elastic.SearchResult) ([]*Product, error) {
 	if res == nil || res.TotalHits() == 0 {
 		return nil, nil
@@ -124,8 +109,10 @@ func populateProduct(res *elastic.SearchResult) ([]*Product, error) {
 	return products, nil
 }
 
+// Filter is type of Filter condition
 type Filter map[string]string
 
+// SortCond is type of Sorting condition
 type SortCond struct {
 	Target    string
 	Ascending bool

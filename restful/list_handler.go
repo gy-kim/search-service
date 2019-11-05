@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	defaultPage = int(0)
+	defaultPage = int(1)
 )
 
 const (
@@ -101,6 +101,9 @@ func (h *ListHandler) extractPage(r *http.Request) int {
 		return defaultPage
 	}
 	h.logger().Debug("[extractPage] Page:(%v)", page)
+	if page < 1 {
+		return defaultPage
+	}
 	return page
 }
 
