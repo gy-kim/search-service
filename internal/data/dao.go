@@ -15,6 +15,10 @@ const (
 	searchSize   = int(5)
 )
 
+const (
+	defaultTotalCount = 0
+)
+
 // NewDAO initialize the data connection and return DAO reference.
 func NewDAO(cfg Config) *DAO {
 	client, _ = getClient(cfg)
@@ -29,11 +33,12 @@ type DAO struct {
 }
 
 // GetProducts gets products
-func (d *DAO) GetProducts(ctx context.Context, queryKeyword string, filter *Filter, sort *SortCond, page int) ([]*Product, error) {
+// return products []*Product, totalCount int64, err error
+func (d *DAO) GetProducts(ctx context.Context, queryKeyword string, filter *Filter, sort *SortCond, page int) ([]*Product, int64, error) {
 	client, err := getClient(d.cfg)
 	if err != nil {
 		d.logger().Error("failed to get elastic client. err: %s", err)
-		return nil, err
+		return nil, defaultTotalCount, err
 	}
 
 	search := client.Search().Index(indexName).Type(typeName)
@@ -44,18 +49,19 @@ func (d *DAO) GetProducts(ctx context.Context, queryKeyword string, filter *Filt
 	result, err := search.Do(ctx)
 	if err != nil {
 		d.logger().Error("failed elastic Do. err: %s", err)
-		return nil, err
+		return nil, defaultTotalCount, err
 	}
-
-	d.logger().Debug("totalHists: %v", result.TotalHits())
 
 	products, err := populateProduct(result)
 	if err != nil {
 		d.logger().Error("failed populate product. err: %s", err)
-		return nil, err
+		return nil, defaultTotalCount, err
 	}
 
-	return products, nil
+	totalCount := result.TotalHits()
+	d.logger().Debug("totalHists: %v", result.TotalHits())
+
+	return products, totalCount, nil
 }
 
 func (d *DAO) queryCondition(service *elastic.SearchService, queryKeyword string, filter *Filter) *elastic.SearchService {

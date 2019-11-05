@@ -33,7 +33,7 @@ func TestLister_Do(t *testing.T) {
 			desc: "happy path",
 			mdao: func() *mockListDAO {
 				dao := &mockListDAO{}
-				dao.On("GetProducts", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(happyPathProducts, nil).Once()
+				dao.On("GetProducts", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(happyPathProducts, int64(1), nil).Once()
 				return dao
 			},
 			expectedError:  false,
@@ -43,7 +43,7 @@ func TestLister_Do(t *testing.T) {
 			desc: "error load data",
 			mdao: func() *mockListDAO {
 				dao := &mockListDAO{}
-				dao.On("GetProducts", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("something error")).Once()
+				dao.On("GetProducts", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, int64(0), errors.New("something error")).Once()
 				return dao
 			},
 			expectedError:  true,
@@ -60,7 +60,7 @@ func TestLister_Do(t *testing.T) {
 				cfg: &testConfig{},
 			}
 
-			result, err := lister.Do(ctx, "", nil, nil, 0)
+			result, _, err := lister.Do(ctx, "", nil, nil, 0)
 
 			require.Equal(t, s.expectedError, err != nil)
 			assert.Equal(t, s.expectedResult, result)

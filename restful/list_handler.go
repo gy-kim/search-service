@@ -27,7 +27,7 @@ const (
 // ListService loads products
 //go:generate mockery -name=ListService -case underscore -testonly -inpkg -note @generated
 type ListService interface {
-	Do(ctx context.Context, query string, filter *data.Filter, sort *data.SortCond, from int) ([]*data.Product, error)
+	Do(ctx context.Context, query string, filter *data.Filter, sort *data.SortCond, from int) ([]*data.Product, int64, error)
 }
 
 // NewListHandler is the HTTP Handler
@@ -54,14 +54,14 @@ func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Requ
 	page := h.extractPage(request)
 	sort := h.extractSort(request)
 
-	products, err := h.service.Do(ctx, query, filter, sort, page)
+	products, totalCount, err := h.service.Do(ctx, query, filter, sort, page)
 	if err != nil {
 		h.logger().Error("Failed to Do. err:%s", err)
 		response.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	err = h.writeJSON(response, products, page)
+	err = h.writeJSON(response, products, totalCount, page)
 	if err != nil {
 		h.logger().Error("Failed toJSON. err:%s", err)
 		response.WriteHeader(http.StatusInternalServerError)
@@ -131,10 +131,11 @@ func (h *ListHandler) extractQuery(r *http.Request) string {
 	return query[0]
 }
 
-func (h *ListHandler) writeJSON(writer io.Writer, products []*data.Product, page int) error {
+func (h *ListHandler) writeJSON(writer io.Writer, products []*data.Product, totalCount int64, page int) error {
 	out := &listResponseViewModel{
-		Page:     page,
-		Products: make([]*listResponseProduct, len(products)),
+		Products:   make([]*listResponseProduct, len(products)),
+		Page:       page,
+		TotalCount: totalCount,
 	}
 	for idx, p := range products {
 		out.Products[idx] = &listResponseProduct{
@@ -151,8 +152,9 @@ func (h *ListHandler) writeJSON(writer io.Writer, products []*data.Product, page
 func (h *ListHandler) logger() logging.Logger { return h.cfg.Logger() }
 
 type listResponseViewModel struct {
-	Products []*listResponseProduct `json:"products"`
-	Page     int                    `json:"page"`
+	Products   []*listResponseProduct `json:"products"`
+	Page       int                    `json:"page"`
+	TotalCount int64                  `json:"total_count"`
 }
 
 type listResponseProduct struct {

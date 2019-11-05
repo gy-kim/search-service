@@ -14,7 +14,7 @@ type mockListDAO struct {
 }
 
 // GetProducts provides a mock function with given fields: ctx, query, filter, sort, from
-func (_m *mockListDAO) GetProducts(ctx context.Context, query string, filter *data.Filter, sort *data.SortCond, from int) ([]*data.Product, error) {
+func (_m *mockListDAO) GetProducts(ctx context.Context, query string, filter *data.Filter, sort *data.SortCond, from int) ([]*data.Product, int64, error) {
 	ret := _m.Called(ctx, query, filter, sort, from)
 
 	var r0 []*data.Product
@@ -26,12 +26,19 @@ func (_m *mockListDAO) GetProducts(ctx context.Context, query string, filter *da
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, *data.Filter, *data.SortCond, int) error); ok {
+	var r1 int64
+	if rf, ok := ret.Get(1).(func(context.Context, string, *data.Filter, *data.SortCond, int) int64); ok {
 		r1 = rf(ctx, query, filter, sort, from)
 	} else {
-		r1 = ret.Error(1)
+		r1 = ret.Get(1).(int64)
 	}
 
-	return r0, r1
+	var r2 error
+	if rf, ok := ret.Get(2).(func(context.Context, string, *data.Filter, *data.SortCond, int) error); ok {
+		r2 = rf(ctx, query, filter, sort, from)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
 }

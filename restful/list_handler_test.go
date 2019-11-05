@@ -44,7 +44,7 @@ func TestListHandler_ServeHTTP(t *testing.T) {
 					},
 				}
 				mck := &MockListService{}
-				mck.On("Do", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockResult, nil).Once()
+				mck.On("Do", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockResult, int64(2), nil).Once()
 
 				return mck
 			},
@@ -61,7 +61,7 @@ func TestListHandler_ServeHTTP(t *testing.T) {
 			},
 			inService: func() *MockListService {
 				mck := &MockListService{}
-				mck.On("Do", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, errors.New("something error")).Once()
+				mck.On("Do", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, int64(0), errors.New("something error")).Once()
 
 				return mck
 			},

@@ -21,12 +21,12 @@ func NewLister(cfg Config) *Lister {
 }
 
 // Do load Product list
-func (l *Lister) Do(ctx context.Context, query string, filter *data.Filter, sort *data.SortCond, from int) ([]*data.Product, error) {
-	products, err := l.getDAO().GetProducts(ctx, query, filter, sort, from)
+func (l *Lister) Do(ctx context.Context, query string, filter *data.Filter, sort *data.SortCond, from int) ([]*data.Product, int64, error) {
+	products, totalCount, err := l.getDAO().GetProducts(ctx, query, filter, sort, from)
 	if err != nil {
-		return nil, err
+		return nil, totalCount, err
 	}
-	return products, nil
+	return products, totalCount, nil
 }
 
 func (l *Lister) getDAO() listDAO {
@@ -44,5 +44,5 @@ type Config interface {
 
 //go:generate mockery -name=listDAO -case underscore -testonly -inpkg -note @generated
 type listDAO interface {
-	GetProducts(ctx context.Context, query string, filter *data.Filter, sort *data.SortCond, from int) ([]*data.Product, error)
+	GetProducts(ctx context.Context, query string, filter *data.Filter, sort *data.SortCond, from int) ([]*data.Product, int64, error)
 }
