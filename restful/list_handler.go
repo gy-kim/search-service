@@ -52,7 +52,7 @@ type ListHandler struct {
 // serveHTTP implement http.Handler
 // http://127.0.0.1:9000/v1/products?q=black_shoes&filter=brand:adidas&page=2&sort=name&sort_asc=false
 func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
-	h.logger().Debug("ServeHTTP")
+	ctx := request.Context()
 	query, err := h.extractQuery(request)
 	if err != nil {
 		h.logger().Error("Failed to extract query. err:%s", err)
@@ -63,7 +63,7 @@ func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Requ
 	page := h.extractPage(request)
 	sort := h.extractSort(request)
 
-	products, err := h.service.Do(request.Context(), query, filter, sort, page)
+	products, err := h.service.Do(ctx, query, filter, sort, page)
 	if err != nil {
 		h.logger().Error("Failed to Do. err:%s", err)
 		response.WriteHeader(http.StatusInternalServerError)
@@ -85,7 +85,6 @@ func (h *ListHandler) extractSort(r *http.Request) *data.SortCond {
 	}
 
 	asc := true
-
 	str, exists := r.URL.Query()[varSortAsc]
 	if exists && len(str) >= 1 {
 		if str[0] == "false" {
