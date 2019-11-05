@@ -13,17 +13,19 @@ type Server struct {
 	address string
 	server  *http.Server
 	cfg     Config
+	auth    auth.Authentication
 
 	handlerList     http.Handler
 	handlerNotFound http.HandlerFunc
 }
 
 // New create and initialize the Server
-func New(cfg Config, lister ListService) *Server {
+func New(cfg Config, lister ListService, auth auth.Authentication) *Server {
 	return &Server{
 		address:     cfg.BindServicePort(),
 		cfg:         cfg,
 		handlerList: NewListHandler(cfg, lister),
+		auth:        auth,
 	}
 }
 
@@ -72,7 +74,7 @@ func (s *Server) route() http.Handler {
 
 func (s *Server) middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if ok := auth.Verify(w, r); !ok {
+		if ok := s.auth.Verify(w, r); !ok {
 			return
 		}
 
