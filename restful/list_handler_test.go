@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/mux"
 	"github.com/gy-kim/search-service/internal/data"
 	"github.com/stretchr/testify/assert"
 	mock "github.com/stretchr/testify/mock"
@@ -26,7 +25,8 @@ func TestListHandler_ServeHTTP(t *testing.T) {
 				req, err := http.NewRequest("GET", "/v1/products?q=black_shoes&filter=brand:adidas&sort=name", nil)
 				require.NoError(t, err)
 
-				return mux.SetURLVars(req, map[string]string{"q": "black_shoes", "filter": "brand:adidas", "sort": "name"})
+				// return mux.SetURLVars(req, map[string]string{"q": "black_shoes", "filter": "brand:adidas", "sort": "name"})
+				return req
 			},
 			inService: func() *MockListService {
 				mockResult := []*data.Product{
@@ -56,7 +56,8 @@ func TestListHandler_ServeHTTP(t *testing.T) {
 				req, err := http.NewRequest("GET", "/v1/products?q=black_shoes&filter=brand:adidas&sort=name", nil)
 				require.NoError(t, err)
 
-				return mux.SetURLVars(req, map[string]string{"q": "black_shoes", "filter": "brand:adidas", "sort": "name"})
+				// return mux.SetURLVars(req, map[string]string{"q": "black_shoes", "filter": "brand:adidas", "sort": "name"})
+				return req
 			},
 			inService: func() *MockListService {
 				mck := &MockListService{}

@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/gy-kim/search-service/internal/data"
 	"github.com/gy-kim/search-service/logging"
 )
@@ -50,6 +49,8 @@ type ListHandler struct {
 	service ListService
 }
 
+// serveHTTP implement http.Handler
+// http://127.0.0.1:9000/v1/products?q=black_shoes&filter=brand:adidas&page=2&sort=name&sort_asc=false
 func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	h.logger().Debug("ServeHTTP")
 	query, err := h.extractQuery(request)
@@ -69,7 +70,7 @@ func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Requ
 		return
 	}
 
-	err = h.toJSON(response, products, page)
+	err = h.writeJSON(response, products, page)
 	if err != nil {
 		h.logger().Error("Failed toJSON. err:%s", err)
 		response.WriteHeader(http.StatusInternalServerError)
@@ -77,66 +78,67 @@ func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Requ
 	}
 }
 
-func (h *ListHandler) extractSort(request *http.Request) *data.SortCond {
-	vars := mux.Vars(request)
-	target, exists := vars[varSortKey]
-	if !exists {
+func (h *ListHandler) extractSort(r *http.Request) *data.SortCond {
+	target, exists := r.URL.Query()[varSortKey]
+	if !exists || len(target) < 1 {
 		return nil
 	}
 
 	asc := true
 
-	if str, exists := vars[varSortAsc]; exists {
-		if str == "false" {
+	str, exists := r.URL.Query()[varSortAsc]
+	if exists && len(str) >= 1 {
+		if str[0] == "false" {
 			asc = false
 		}
 	}
 
 	sort := &data.SortCond{
-		Target:    target,
+		Target:    target[0],
 		Ascending: asc,
 	}
+	h.logger().Debug("[extractSort] sort: (%#v)", sort)
 	return sort
 }
 
-func (h *ListHandler) extractPage(request *http.Request) int {
-	vars := mux.Vars(request)
-	str, exists := vars[varPageKey]
-	if !exists {
+func (h *ListHandler) extractPage(r *http.Request) int {
+	str, exists := r.URL.Query()[varPageKey]
+	if !exists || len(str) < 1 {
 		return defaultPage
 	}
-	page, err := strconv.Atoi(str)
+	page, err := strconv.Atoi(str[0])
 	if err != nil {
 		return defaultPage
 	}
+	h.logger().Debug("[extractPage] Page:(%v)", page)
 	return page
 }
 
-func (h *ListHandler) extractFilter(request *http.Request) *data.Filter {
-	vars := mux.Vars(request)
-	str, exists := vars[varFilterKey]
-	if !exists {
+func (h *ListHandler) extractFilter(r *http.Request) *data.Filter {
+	str, exists := r.URL.Query()[varFilterKey]
+	if !exists || len(str) < 1 {
 		return nil
 	}
 
-	arr := strings.Split(str, ":")
+	arr := strings.Split(str[0], ":")
 	if len(arr) != 2 {
 		return nil
 	}
 	filter := &data.Filter{arr[0]: arr[1]}
+	h.logger().Debug("[extractFilter] filter:(%v)", filter)
 	return filter
 }
 
 func (h *ListHandler) extractQuery(r *http.Request) (string, error) {
-	vars := mux.Vars(r)
-	query, exists := vars[varQueryKey]
-	if !exists {
+	query, exists := r.URL.Query()[varQueryKey]
+	if !exists || len(query) < 1 {
 		return "", errQueryMissing
 	}
-	return query, nil
+	h.logger().Debug("[extractQuery] query:(%s)", query[0])
+	return query[0], nil
 }
 
-func (h *ListHandler) toJSON(writer io.Writer, products []*data.Product, page int) error {
+func (h *ListHandler) writeJSON(writer io.Writer, products []*data.Product, page int) error {
 	out := &listResponseViewModel{
 		Page:     page,
 		Products: make([]*listResponseProduct, len(products)),

@@ -59,10 +59,11 @@ func (s *Server) route() http.Handler {
 	router.HandleFunc("/health", health).Methods("GET")
 	router.NotFoundHandler = s.handlerNotFound
 
-	// sub := router.PathPrefix("v1").Subrouter()
-	// sub.Handle("/products", s.handlerList).Methods("GET")
+	sub := router.PathPrefix("/v1").Subrouter()
+	sub.Handle("/products", s.handlerList).Methods("GET")
 
-	router.Handle("/v1/products", s.handlerList).Methods("GET").Queries(varQueryKey, varPageKey, varFilterKey, varSortKey, varSortAsc)
+	router.Handle("/v1/products", s.handlerList).Methods("GET").Queries("q", "{q}")
+	// router.Handle("/v1/products", s.handlerList).Methods("GET")
 
 	router.Use(s.middleware)
 
