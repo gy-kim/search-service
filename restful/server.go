@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/gy-kim/search-service/internal/auth"
 	"github.com/gy-kim/search-service/logging"
 )
 
@@ -63,7 +64,6 @@ func (s *Server) route() http.Handler {
 	sub.Handle("/products", s.handlerList).Methods("GET")
 
 	router.Handle("/v1/products", s.handlerList).Methods("GET").Queries("q", "{q}")
-	// router.Handle("/v1/products", s.handlerList).Methods("GET")
 
 	router.Use(s.middleware)
 
@@ -72,6 +72,10 @@ func (s *Server) route() http.Handler {
 
 func (s *Server) middleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if ok := auth.Verify(w, r); !ok {
+			return
+		}
+
 		next.ServeHTTP(w, r)
 	})
 }
