@@ -1,3 +1,1 @@
-# search-service
-
-https://github.com/linux08/auth
+# search-service [![Build Status](https://travis-ci.org/gy-kim/search-service.svg?branch=master)](https://travis-ci.org/gy-kim/search-service)
