@@ -8,7 +8,8 @@ A simple REST API for Searching products.
 
 ## Run
 ### Docker-Compose
-    $ docker-compose up -d
+    $ make up
+* Wait at least 1 minute for booting up elastic search.
 
 ### Development
     $ cd dev
@@ -16,6 +17,10 @@ A simple REST API for Searching products.
 
     $ cd ..
     $ go run main.go
+
+## Down
+### Docker-Compose
+    $ make down
 
 ## Usage
 ### Health
@@ -77,3 +82,30 @@ A simple REST API for Searching products.
 #### Authentication : 
  -  Key : x-access-token
  -  JWT Secret Key : `secret` (You can generate token through `https://jwt.io/`)
+
+
+## Sameple Data
+	products := []Product{
+		{ID: "1_product_id_adidas", Type: "black_shoes", Brand: "adidas", Name: "1_product_1_name"},
+		{ID: "2_product_id_adidas", Type: "black_shoes", Brand: "adidas", Name: "2_product_2_name"},
+		{ID: "3_product_id_adidas", Type: "black_shoes", Brand: "adidas", Name: "3_product_3_name"},
+		{ID: "4_product_id_adidas", Type: "black_shoes", Brand: "adidas", Name: "4_product_4_name"},
+		{ID: "5_product_id_adidas", Type: "black_shoes", Brand: "adidas", Name: "5_product_5_name"},
+		{ID: "6_product_id_adidas", Type: "black_shoes", Brand: "adidas", Name: "6_product_6_name"},
+		{ID: "7_product_id_adidas", Type: "white_shoes", Brand: "adidas", Name: "7_product_7_name"},
+		{ID: "8_product_id_adidas", Type: "white_shoes", Brand: "adidas", Name: "8_product_8_name"},
+		{ID: "9_product_id_adidas", Type: "white_shoes", Brand: "adidas", Name: "9_product_9_name"},
+		{ID: "10_product_id_adidas", Type: "white_shoes", Brand: "adidas", Name: "10_product_10_name"},
+		{ID: "11_product_id_adidas", Type: "white_shoes", Brand: "adidas", Name: "11_product_11_name"},
+		{ID: "12_product_id_adidas", Type: "white_shoes", Brand: "adidas", Name: "12_product_12_name"},
+
+		{ID: "13_product_id_nike", Type: "black_shoes", Brand: "nike", Name: "13_product_name"},
+		{ID: "14_product_id_nike", Type: "black_shoes", Brand: "nike", Name: "14_product_name"},
+		{ID: "15_product_id_nike", Type: "black_shoes", Brand: "nike", Name: "15_product_name"},
+		{ID: "16_product_id_nike", Type: "black_shoes", Brand: "nike", Name: "16_product_name"},
+		{ID: "17_product_id_nike", Type: "black_shoes", Brand: "nike", Name: "17_product_name"},
+		{ID: "18_product_id_nike", Type: "black_shoes", Brand: "nike", Name: "18_product_name"},
+		{ID: "19_product_id_nike", Type: "white_shoes", Brand: "nike", Name: "19_product_name"},
+		{ID: "20_product_id_nike", Type: "white_shoes", Brand: "nike", Name: "20_product_name"},
+		{ID: "21_product_id_nike", Type: "white_shoes", Brand: "nike", Name: "21_product_name"},
+	}

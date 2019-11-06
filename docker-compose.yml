@@ -6,7 +6,7 @@ services:
     ports:
       - "9200:9200"
     networks:
-      - esnet
+      - ssnet
 
   app:
     build: .
@@ -16,10 +16,11 @@ services:
     depends_on:
       - elasticsearch
     networks:
-      - esnet
+      - ssnet
     environment:
-      - ELASTIC_URL=http://elasticsearch:9200
+      ELASTIC_URL: http://elasticsearch:9200
+    restart: always
 
 networks:
-  esnet:
+  ssnet:
     driver: bridge
