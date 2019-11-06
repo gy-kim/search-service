@@ -1,6 +1,6 @@
 # search-service [![Build Status](https://travis-ci.org/gy-kim/search-service.svg?branch=master)](https://travis-ci.org/gy-kim/search-service)
 
-A simple REST API that Searches products.
+A simple REST API for Searching products.
 
 ## Requirements
 - Go v1.13
@@ -69,11 +69,11 @@ A simple REST API that Searches products.
 ## API Documentation
 ### GetProduct
 #### URL : http://127.0.0.1:9000/v1/products?q={query}&filter={property:value}&page={page}&sort={sort}&sort_asc={sort_asc}
-   - query: query for product type.  i.e) black_shoes | white_shoes
-   - filter : filter for properties.(propery:value) i.e) brand:adidas | brand:nike
-   - page : pagination. i.e) 1 | 2 | 3
-   - sort : sorting property. i.e) id | product_type | brand | name
-   - sort_asc : Soring ascending. i.e) true | false
+   - query: query for product type.  i.e) `black_shoes` | `white_shoes`
+   - filter : filter for properties.(propery:value) i.e) `brand:adidas` | `brand:nike`
+   - page : pagination. i.e) `1` | `2` | `3`
+   - sort : sorting property. i.e) `id` | `product_type` | `brand` | `name`
+   - sort_asc : Soring ascending. i.e) `true` | `false`
 #### Authentication : 
  -  Key : x-access-token
- -  JWT Secret Key : `secret` (You can generate token through 'https://jwt.io/')
+ -  JWT Secret Key : `secret` (You can generate token through `https://jwt.io/`)
