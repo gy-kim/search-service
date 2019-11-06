@@ -15,9 +15,7 @@ type Lister struct {
 
 // NewLister creates and initialize lister object.
 func NewLister(cfg Config) *Lister {
-	return &Lister{
-		cfg: cfg,
-	}
+	return &Lister{cfg: cfg}
 }
 
 // Do load Product list

@@ -6,10 +6,6 @@ type testConfig struct {
 	url string
 }
 
-func (t *testConfig) Logger() logging.Logger {
-	return &logging.LoggerStdOut{}
-}
+func (t *testConfig) Logger() logging.Logger { return &logging.LoggerStdOut{} }
 
-func (t *testConfig) DataURL() string {
-	return t.url
-}
+func (t *testConfig) DataURL() string { return t.url }

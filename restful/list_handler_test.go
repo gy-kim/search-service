@@ -13,6 +13,7 @@ import (
 )
 
 func TestListHandler_ServeHTTP(t *testing.T) {
+	url := "/v1/products?q=black_shoes&filter=brand:adidas&sort=name"
 	scenarios := []struct {
 		desc           string
 		inRequest      func() *http.Request
@@ -22,10 +23,8 @@ func TestListHandler_ServeHTTP(t *testing.T) {
 		{
 			desc: "happy path",
 			inRequest: func() *http.Request {
-				req, err := http.NewRequest("GET", "/v1/products?q=black_shoes&filter=brand:adidas&sort=name", nil)
+				req, err := http.NewRequest("GET", url, nil)
 				require.NoError(t, err)
-
-				// return mux.SetURLVars(req, map[string]string{"q": "black_shoes", "filter": "brand:adidas", "sort": "name"})
 				return req
 			},
 			inService: func() *MockListService {
@@ -45,7 +44,6 @@ func TestListHandler_ServeHTTP(t *testing.T) {
 				}
 				mck := &MockListService{}
 				mck.On("Do", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(mockResult, int64(2), nil).Once()
-
 				return mck
 			},
 			expectedStatus: http.StatusOK,
@@ -53,16 +51,13 @@ func TestListHandler_ServeHTTP(t *testing.T) {
 		{
 			desc: "service failed",
 			inRequest: func() *http.Request {
-				req, err := http.NewRequest("GET", "/v1/products?q=black_shoes&filter=brand:adidas&sort=name", nil)
+				req, err := http.NewRequest("GET", url, nil)
 				require.NoError(t, err)
-
-				// return mux.SetURLVars(req, map[string]string{"q": "black_shoes", "filter": "brand:adidas", "sort": "name"})
 				return req
 			},
 			inService: func() *MockListService {
 				mck := &MockListService{}
 				mck.On("Do", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, int64(0), errors.New("something error")).Once()
-
 				return mck
 			},
 			expectedStatus: http.StatusInternalServerError,
@@ -74,6 +69,7 @@ func TestListHandler_ServeHTTP(t *testing.T) {
 			mservice := s.inService()
 			handler := NewListHandler(&testConfig{}, mservice)
 			response := httptest.NewRecorder()
+
 			handler.ServeHTTP(response, s.inRequest())
 
 			require.Equal(t, s.expectedStatus, response.Code)

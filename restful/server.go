@@ -64,8 +64,6 @@ func (s *Server) route() http.Handler {
 	sub := router.PathPrefix("/v1").Subrouter()
 	sub.Handle("/products", s.handlerList).Methods("GET")
 
-	router.Handle("/v1/products", s.handlerList).Methods("GET").Queries("q", "{q}")
-
 	router.Use(s.middleware)
 
 	return router

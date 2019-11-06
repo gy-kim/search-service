@@ -45,7 +45,8 @@ type ListHandler struct {
 }
 
 // serveHTTP implement http.Handler
-// http://127.0.0.1:9000/v1/products?q=black_shoes&filter=brand:adidas&page=2&sort=name&sort_asc=false
+// URL: http://127.0.0.1:9000/v1/products?q=black_shoes&filter=brand:adidas&page=2&sort=name&sort_asc=false
+// Header: x-access-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.XbPfbIHMI6arZ3Y922BhjWgQzWXcXNrz0ogtVhfEd2o
 func (h *ListHandler) ServeHTTP(response http.ResponseWriter, request *http.Request) {
 	ctx := request.Context()
 
