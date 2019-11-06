@@ -84,7 +84,7 @@ A simple REST API for Searching products.
  -  JWT Secret Key : `secret` (You can generate token through `https://jwt.io/`)
 
 
-## Sameple Data
+## Sample Data
 	products := []Product{
 		{ID: "1_product_id_adidas", Type: "black_shoes", Brand: "adidas", Name: "1_product_1_name"},
 		{ID: "2_product_id_adidas", Type: "black_shoes", Brand: "adidas", Name: "2_product_2_name"},
